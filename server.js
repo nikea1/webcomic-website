@@ -69,10 +69,10 @@ function getData(rootDir, chDirName, pgDirName, payload){
 
 		//mark flag get title from image name
 		payload.is4koma = true;
-		payload.title = temp[0].slice(temp[0].indexOf("-")+1, temp[0].length-4);
+		payload.title = temp[0].slice(temp[0].indexOf("-")+1, temp[0].length-4).replace(/-/g, " ");
 	}else{
 		//get titlt from chapter folder
-		payload.title = chDirName.slice(chDirName.indexOf("-")+1);
+		payload.title = chDirName.slice(chDirName.indexOf("-")+1).replace(/-/g, " ");
 	}
 	
 	// there is user defined alternate text
@@ -166,84 +166,102 @@ function checkData(nav ,rootDir, chDirName, pgDirName, payload){
 	return flag;
 }
 
-function findContent(rootDir, directFlag, payload, nav){
+function findContent(rootDir, directFlag, payload, haveCurrent=false){
 	if(!fs.existsSync(rootDir)){
 		console.log("File path does not exist");
-		return false
+		return null;
 	}
-	var cnt;
-	var fcnt;
-	var flag = false;
+
 	var dir = fileListFilter(rootDir, /0*\d+(-\w+)+/g); //list of chapters
 	var iod = (directFlag ? 1 : -1); //increment or decrement
-	
-	//If were are looking for content before or after current content
-	if((nav==navEnum.NEXT) || (nav==navEnum.PREV)){
-		//find name of current content folder
+	var nav1;
+	var nav2;
+	var gotAdj = false;
+	var start;
+	var start2;
+	var out = {
+		chapters:[],
+		pages:[],
+		links:[],
+	}
+
+	if(directFlag){
+		nav1 = navEnum.NEXT;
+		nav2 = navEnum.LAST;
+	}
+	else{
+		nav1 = navEnum.PREV;
+		nav2 = navEnum.FIRST;
+	}
+
+	if(haveCurrent){
 		var r = new RegExp("0*"+payload.currentCh+"(-\\w+)+")
 		var found = r.exec(dir.toString());
-		//get location
-		console.log(dir.toString());
-		console.log(payload);
-		console.log(found)
-		cnt = dir.indexOf(found[0]);
-		
+		start = dir.indexOf(found[0]);
 	}
 	else{
-		//set cnt based on looping direction
-		cnt = ((directFlag) ?  0 : (dir.length-1) );
-	}
-	
-	//retrieve list of pages
-	if(!fs.existsSync(rootDir+'/'+dir[cnt])){
-		return false;
-	}
-	var files = fileListFilter(rootDir+'/'+dir[cnt], /0*\d+/);
-	
-	//If were are looking for content before or after current content
-	if((nav==navEnum.NEXT) || (nav==navEnum.PREV)){
-		//find the next adjacent available content
-		fcnt = files.indexOf((payload.currentPg).toString())+iod;	
-	}
-	else{
-		//set fcnt based on looping direction
-		fcnt = ((directFlag) ? 0 : (files.length-1));
+		start = directFlag ? 0 : dir.length-1;
 	}
 
-	//look through files for content
-	while(pickABool(directFlag,(cnt < dir.length), (cnt >= 0))){
-		while(pickABool(directFlag,(fcnt < files.length), (fcnt >= 0))){
-			if(nav === undefined){
-				//get content
-				flag = getData(rootDir, dir[cnt], files[fcnt], payload);
-			}else{
-				flag = checkData(nav, rootDir, dir[cnt], files[fcnt], payload);
+	var files = fileListFilter(rootDir+'/'+dir[start], /0*\d+/ );
+
+	if(haveCurrent){
+		var r = new RegExp("0*"+payload.currentPg)
+		var found = r.exec(files.toString());
+		//console.log("Found:",found);
+		start2 = files.indexOf(found[0])+iod;
+	}
+	else{
+		start2 = directFlag ? 0 : files.length-1;
+	}
+
+	//console.log("Starting get function 2");
+	//console.log("start: "+start+ " start2: "+start2+" directFlag "+ directFlag)
+
+	for(let i = start; pickABool(directFlag, (i < dir.length), (i >= 0)); i+=iod){
+		if(directFlag)
+			out.chapters.push(dir[i]);
+		else
+			out.chapters.unshift(dir[i]);
+		pages = (haveCurrent && !directFlag && i == start) ? [payload.currentPg.toString()] : [];
+		links = (haveCurrent && !directFlag && i == start) ? ["/"+payload.currentCh+"/"+payload.currentPg] : [];
+		files = fileListFilter(rootDir+'/'+dir[i], /0*\d+/ );
+		for(let j = (i == start) ? start2 : (directFlag ? 0 : files.length-1); pickABool(directFlag, (j < files.length), (j >= 0 )); j+=iod){
+			if(!haveCurrent){
+				haveCurrent = getData('./comics', dir[i], files[j], payload);
 			}
-
-			if(flag)
-				return true
-
-			fcnt+=iod;
+			else if(!gotAdj){
+				gotAdj = checkData(nav1,'./comics', dir[i], files[j], payload);
+			}
+			checkData(nav2, './comics', dir[i], files[j], payload);
+			
+			if(directFlag){
+				pages.push(files[j]);
+				links.push("/"+dir[i].slice(0, dir[i].indexOf("-"))+"/"+files[j]);
+			}
+			else{
+				pages.unshift(files[j]);
+				links.unshift("/"+dir[i].slice(0, dir[i].indexOf("-"))+"/"+files[j]);
+			}
+		}//loop through pages
+		if(directFlag){
+			out.pages.push(pages);
+			out.links.push(links);
 		}
-		cnt+=iod;
-
-		
-		if(fs.existsSync(rootDir+'/'+dir[cnt])){
-			files = fileListFilter(rootDir+'/'+dir[cnt]);
-			fcnt = ((directFlag) ? 0 : (files.length-1));
+		else{
+			out.pages.unshift(pages);
+			out.links.unshift(links);
 		}
-	}
+	}// loop through chapters
 
-	return flag;
+	return out;
 }
-
 
 fastify.register(require('point-of-view'), {
 	engine:{
 		handlebars: require('handlebars')
 	}
 })
-
 
 fastify.get('/', (req, res) => {
 	var payload = {
@@ -259,35 +277,37 @@ fastify.get('/', (req, res) => {
 	next: null,
 	prev: null,
 	first: null,
+	menu: {
+		chapters:[],
+		pages:[],
+		links:[]
+	},
 	errmsg: null
 	}
-	
-	var gotCurrent = false;
-	var gotPrev = false;
-	var gotFirst = false;
-	
-	console.log("Content")
-	//gets the most resent Content from the comics folder
-	gotCurrent = findContent('./comics', false, payload);
-	
-	//check if content was found
-	if(!gotCurrent){
-		//if no content error 500 No images to display
+
+	if(!fs.existsSync('./comics')){
+		//error 500
+		payload.errmsg = "500 error: Whoops looks like we messed up back here. Either the author didn't upload anything yet or something went horribly wrong. Either way lets us know and we'll try to fix it. Untill then check back later."
+		return res.send(payload);
+	}
+	var chDir	= fileListFilter('./comics', /0*\d(-\w+)+/);
+	if(!chDir.length){
 		payload.errmsg = "500 error: Whoops looks like we messed up back here. Either the author didn't upload anything yet or something went horribly wrong. Either way lets us know and we'll try to fix it. Untill then check back later."	
 		return res.send(payload);
 	}
 	
-	//if most resent content found check for content for previous link
-	gotPrev = findContent('./comics',false, payload, navEnum.PREV);
+	var out = findContent('./comics', false, payload);
 
-	//if previous found find first page
-	if(gotPrev){
-		console.log("First")
-		//find content for first link
-		gotFirst = findContent('./comics', true, payload, navEnum.FIRST);
+	//console.log(out);
+	payload.menu = out;
+
+	if(!payload.img){
+		payload.errmsg = "500 error: Whoops looks like we messed up back here. Either the author didn't upload anything yet or something went horribly wrong. Either way lets us know and we'll try to fix it. Untill then check back later."	
+		return res.send(payload);
 	}
 	
 	//send payload
+	//return res.view('./public/index.html', payload);
 	return res.send(payload);
 })
 
@@ -305,6 +325,11 @@ fastify.get('/:ch/:pg', (req, res) => {
 	next: null,
 	prev: null,
 	first: null,
+	menu: {
+		chapters:[],
+		pages:[],
+		links:[]
+	},
 	errmsg: null
 	}
 	
@@ -313,20 +338,22 @@ fastify.get('/:ch/:pg', (req, res) => {
 	var files;
 	var dir;
 	var gotCurrent = false;
-	var gotPrev = false;
-	var gotNext = false;
-	var gotLast = false;
-	var gotFirst = false;
-	
 
-	dir = fileListFilter('./comics',  chExp); //list of chapters
+	
+	if(!fs.existsSync('./comics')){
+		//error 500
+		payload.errmsg = "500 error: Whoops looks like we messed up back here. Either the author didn't upload anything yet or something went horribly wrong. Either way lets us know and we'll try to fix it. Untill then check back later."
+		return res.send(payload);
+	}
+
+	dir = fileListFilter('./comics',  chExp); //1 chapter
 	
 	//if chapter file not found return error 400
 	if(!dir.length){
 		payload.errmsg = "400 error: Bad request."
 		return res.send(payload);
 	}
-	
+
 	files = fileListFilter('./comics/'+dir[0], pgExp);
 
 	//if page file not found return error 400
@@ -343,59 +370,55 @@ fastify.get('/:ch/:pg', (req, res) => {
 		payload.errmsg = "500 error: Whoops looks like we messed up back here. Either the author didn't upload anything yet or something went horribly wrong. Either way lets us know and we'll try to fix it. Untill then check back later."
 		return res.send(payload);
 	}
-
-	//find next link if exist
-	gotNext = findContent('./comics', true, payload, navEnum.NEXT);
-			
-	//find previous link if exists
-	gotPrev = findContent('./comics', false, payload, navEnum.PREV);
-
-	//get last link if exist
-	if(gotNext){
+	//navigation and menu
+	var upperPromise = new Promise((resolve, reject) => {
 		
-		gotLast = findContent('./comics', false, payload, navEnum.LAST);
-	}
-	
-	//get first link if exist
-	if(gotPrev){
-		
-		gotFirst = findContent('./comics', true, payload, navEnum.FIRST);
-	}
-	
-	return res.send(payload);	
-})
-
-fastify.get('/menu', (req, res) => {
-	payload = {
-		chapters: null,
-		pages:[],
-		links:[]
-	}
-
-	var dir = fileListFilter('./comics', /0*\d+(-\w+)+/g);
-
-	if(!dir.length){
-		return null;
-	}
-
-	//list of chapter number and titles
-	payload.chapters = dir;
-	
-	dir.forEach((chapter) => {
-		var p = fileListFilter('./comics/'+chapter, /0*\d+/g)
-		var ch = parseInt(chapter.slice(0, chapter.indexOf("-")));
-		var links = [];
-		//list of pages
-		payload.pages.push(p);
-		
-		p.forEach((page)=>{
-			links.push('/'+ch+'/'+page);
-		})
-		//list of links
-		payload.links.push(links);
+		var out = findContent('./comics', true, payload, gotCurrent);
+		if(!out){
+			reject("./comics Directory Does not exist.");
+		}
+		resolve(out);
 	})
 	
-	return res.send(payload);
+	var lowerPromise = new Promise((resolve, reject) => {
+		var out =  findContent('./comics', false, payload, gotCurrent);
+		if(!out){
+			reject("./comics Directory Does not exist.");
+		}
+		resolve(out);
+	})
+
+	Promise.all([upperPromise, lowerPromise]).then((values) => {
+		//console.log(values);
+
+		//console.log("values[0]", values[0]);
+		//console.log("values[1]", values[1]);
+		var list, list2;
+
+		values[1].chapters.pop();
+		
+		list = values[1].pages.pop();
+		list2 = values[0].pages.shift();
+		list = list.concat(list2);
+		values[1].pages.push(list);
+		
+		//console.log(list)
+		
+		list = values[1].links.pop();
+		list2 = values[0].links.shift();
+		list = list.concat(list2);
+		values[1].links.push(list);
+
+		//console.log(list)
+		payload.menu.chapters = values[1].chapters.concat(values[0].chapters);
+		payload.menu.pages = values[1].pages.concat(values[0].pages);
+		payload.menu.links = values[1].links.concat(values[0].links);	
+	}).catch((values)=>{
+		console.log("error?", values);
+		payload.errmsg = "500 error: Whoops looks like we messed up back here. Either the author didn't upload anything yet or something went horribly wrong. Either way lets us know and we'll try to fix it. Untill then check back later."	
+	}).finally(() =>{
+		return res.send(payload);
+	})	
 })
 
 fastify.listen(PORT, (err, address) => {

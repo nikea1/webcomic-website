@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=yes">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+
+    <title>Hello, world!</title>
+
+    <style>
+      body{
+      background-color: lightblue;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container-fluid">
+
+    <!-- Banner -->
+    <img class="mx-auto d-block img-fluid" src="https://via.placeholder.com/728x90.png?text=Star+Warrior+Legends" />
+
+    <!-- Links -->
+    <ul class="nav justify-content-center">
+      <li class="nav-item">
+        <a class="nav-link" href="/">Home</a>
+      </li> 
+      <li class="nav-item">
+        <a class="nav-link" href="#">About</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/">Most Recent</a>
+      </li>
+    </ul>
+
+    <!-- Comic Page -->
+    <div class="container">
+      <!-- Date of Posting -->
+      <h6>{{date}}</h6>
+      <!-- Chapter Name and page number-->
+      <h4>Chapter {{currentCh}}: {{title}} - Page {{currentPg}}</h4>
+      <!-- Comic image -->
+
+
+      <img class="mx-auto d-block img-fluid" width="4500" height="7000" src="https://via.placeholder.com/2250x3500.png?text=Star+Warrior+Legends+Comic+Goes+Here" />
+    </div>
+    <!-- Comic Navigation --> 
+
+    <ul class="d-flex nav justify-content-center mb-5">
+      <li class="nav-item">
+        <a class="nav-link px-1 px-sm-2 px-md-3 px-lg-5" href="{{first}}" role="button">First</a>
+      </li>
+
+      <li class="nav-item">
+        <a class="nav-link px-1 px-sm-2 px-md-3 px-lg-5 " href="{{prev}}" role="button">Prev</a>
+      </li>
+      <li class="nav-item">
+        <span class="dropdown">
+          <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          Chapter {{currentCh}} Page {{currentPg}}
+          </button>
+          <span class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+
+          </span>
+        </span>
+      </li>
+      <li class="nav-item ">
+        <a class="nav-link px-1 px-sm-2 px-md-3 px-lg-5" href="{{next}}" role="button">Next</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link px-1 px-sm-2 px-md-3 px-lg-5" href="{{last}}" role="button">Last</a>
+      </li>
+    </ul>	
+
+    <!-- Footer -->
+    <hr />
+    <footer>
+      <p class="text-center">Copyright stuff here</p>
+    </footer>
+    </div>
+  </body>
+</html>
