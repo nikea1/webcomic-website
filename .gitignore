@@ -3,3 +3,5 @@ node_modules
 packages
 Thumbs.db
 comics
+watcher.js
+prependzeroes.js

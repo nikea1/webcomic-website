@@ -27,6 +27,12 @@
 
         }
       }
+
+      .scroll-dropdown-menu{
+        max-height: 200px;
+        overflow-x: hidden;
+        height: auto;
+      }
     </style>
   </head>
 
@@ -36,7 +42,7 @@
       <!-- Banner -->
       <!--<img class="mx-auto d-block img-fluid" src="https://via.placeholder.com/728x90.png?text=Star+Warrior+Legends" />-->
 
-      <img class="mx-auto d-block img-fluid" src="../public/Bannerdraft.png" />
+      <img class="mx-auto d-block img-fluid" src="../public/image/Bannerdraft.png" />
       <!-- Links -->
       <ul class="nav justify-content-center">
         <li class="nav-item">
@@ -77,7 +83,7 @@
             <button class="btn btn-secondary dropdown-toggle mt-1" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               Chapter {{currentCh}} Page {{currentPg}}
             </button>
-            <div class="dropdown-menu mx-auto" aria-labelledby="dropdownMenuButton">
+            <div class="dropdown-menu mx-auto scroll-dropdown-menu" aria-labelledby="dropdownMenuButton">
               {{#each menu}}
                 {{#with this}}
                   <h6 class="dropdown-header">{{title}}</h6>

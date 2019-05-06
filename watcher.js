@@ -12,7 +12,7 @@ watch.createMonitor('./comics', {ignoreDotFiles: true}, (monitor) => {
 		console.log(file + " was created");
 		
 		var fileDir = file.split('/');
-		console.log(fileDir);
+		// console.log(fileDir);
 
 		while(fileDir.length > 3) fileDir.pop();
 
@@ -27,9 +27,9 @@ watch.createMonitor('./comics', {ignoreDotFiles: true}, (monitor) => {
 				return null != page.match(/0*\d+/)
 			})
 			
-			console.log('searchDir', searchDir);
-			console.log('searchDir len',searchDir.length);
-			console.log('len half', Math.floor(searchDir.length/2));
+			// console.log('searchDir', searchDir);
+			// console.log('searchDir len',searchDir.length);
+			// console.log('len half', Math.floor(searchDir.length/2));
 			var temp = null;
 			var newPage = null;
 			var x = fileDir[2].length;
@@ -47,25 +47,25 @@ watch.createMonitor('./comics', {ignoreDotFiles: true}, (monitor) => {
 					
 				}
 
-				console.log('updated', newPage)
+				// console.log('updated', newPage)
 				try{
 
 					//check if the page file alrady exists
 					fs.accessSync('./'+fileDir[0]+'/'+fileDir[1]+'/'+newPage);
-					console.log('file exists');
+					// console.log('file exists');
 					var listOfData = fs.readdirSync('./'+fileDir[0]+'/'+fileDir[1]+'/'+fileDir[2]);
 					listOfData.forEach((data)=>{
 						//move and overwrite newpath to old path
-						console.log('check', data)
+						// console.log('check', data)
 						fs.renameSync('./'+fileDir[0]+'/'+fileDir[1]+'/'+fileDir[2]+'/'+data, './'+fileDir[0]+'/'+fileDir[1]+'/'+newPage+'/'+data)
 					})
-					console.log('about to clean up');
-					console.log(fileDir);
+					// console.log('about to clean up');
+					// console.log(fileDir);
 					fs.rmdirSync('./'+fileDir[0]+'/'+fileDir[1]+'/'+fileDir[2]);
-					console.log('done');
+					// console.log('done');
 				}
 				catch{
-					console.log('new file');
+					// console.log('new file');
 					//console.log(err);
 					fs.renameSync('./'+fileDir[0]+'/'+fileDir[1]+'/'+fileDir[2], './'+fileDir[0]+'/'+fileDir[1]+'/'+newPage);
 				}
