@@ -17,26 +17,11 @@ fastify.register(require('fastify-static'), {
 })
 
 fastify.get('/', (req, res) => {
-	// var payload = {
-	// currentCh: null,
-	// currentPg: null,
-	// is4koma: false,
-	// title: null,
-	// img: null,
-	// alt: null,
-	// date: null,
-	// note: null,
-	// last: null,
-	// next: null,
-	// prev: null,
-	// first: null,
-	// menu: [],
-	// }
+
 	var payload = helper.newPayload();
 	//root does not exist send error
 	if(!fs.existsSync('./comics')){
 		//error 500
-		//payload.errmsg = "500 error: Whoops looks like we messed up back here. Either the author didn't upload anything yet or something went horribly wrong. Either way lets us know and we'll try to fix it. Untill then check back later."
 		return res.code(500).send({message: "Misplaced Content on the server. Contact Author and try again later"});
 	}
 	//get list of chapters
@@ -44,41 +29,22 @@ fastify.get('/', (req, res) => {
 	
 	//if list is 0 send error
 	if(!chDir.length){
-		//payload.errmsg = "500 error: Whoops looks like we messed up back here. Either the author didn't upload anything yet or something went horribly wrong. Either way lets us know and we'll try to fix it. Untill then check back later."	
 		return res.code(500).send({message: "No chapters available on the server. Contact Author and try again later."});
 	}
 	
-	//collect data
+	//collect data return a menu list
 	payload.menu = helper.findContent('./comics', false, payload);;
 
 	//if we could not find an image return error
 	if(!payload.img){
-		//payload.errmsg = "500 error: Whoops looks like we messed up back here. Either the author didn't upload anything yet or something went horribly wrong. Either way lets us know and we'll try to fix it. Untill then check back later."	
 		return res.code(500).send({message: "Content is missing on the server. Contact Author and try again later."});
-		//return res.send(payload);
 	}
 	
 	return res.view('./public/index.html', payload);
-	//return res.send(payload);
 })
 
 fastify.get('/:ch/:pg', (req, res) => {
-	// var payload = {
-	// currentCh: null,
-	// currentPg: null,
-	// is4koma: false,
-	// title: null,
-	// img: null,
-	// alt: null,
-	// date: null,
-	// note: null,
-	// last: null,
-	// next: null,
-	// prev: null,
-	// first: null,
-	// menu: [],
 	
-	// }
 	var payload = helper.newPayload();
 	var chExp = new RegExp('0*'+(req.params.ch)+'(-\\w+)+');
 	var pgExp = new RegExp('0*'+req.params.pg);
@@ -89,16 +55,12 @@ fastify.get('/:ch/:pg', (req, res) => {
 	//make sure root exists otherwise send error
 	if(!fs.existsSync('./comics')){
 		//error 500
-		//payload.errmsg = "500 error: Whoops looks like we messed up back here. Either the author didn't upload anything yet or something went horribly wrong. Either way lets us know and we'll try to fix it. Untill then check back later."
-		//return res.send(payload);
 		return res.code(500).send({message: "Misplaced Content on the server. Contact Author and try again later"});
 	}
 	//get list of chapters
 	chDir = helper.fileListFilter('./comics',  chExp); //1 chapter
 	//if chapter file not found return error 400
 	if(!chDir.length){
-		//payload.errmsg = "400 error: Bad request."
-		//return res.send(payload);
 		return res.code(400).send({message: "Bad Request. Check URL for any misspellings."});
 	}
 	//get list of pages
@@ -106,8 +68,6 @@ fastify.get('/:ch/:pg', (req, res) => {
 
 	//if page file not found return error 400
 	if(!pgDir.length){
-		//payload.errmsg = "400 error: Bad request."
-		//return res.send(payload);
 		return res.code(400).send({message: "Bad Request. Check URL for any misspellings."});
 	}
 	//get data
@@ -116,8 +76,6 @@ fastify.get('/:ch/:pg', (req, res) => {
 	//if no image found return error
 	if(!gotCurrent){
 		//error 500
-		//payload.errmsg = "500 error: Whoops looks like we messed up back here. Either the author didn't upload anything yet or something went horribly wrong. Either way lets us know and we'll try to fix it. Untill then check back later."
-		//return res.send(payload);
 		return res.code(500).send({message: "Content is missing on the server. Contact Author and try again later."});
 	}
 	//navigation and menu
