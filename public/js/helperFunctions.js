@@ -1,5 +1,5 @@
 const fs = require('fs');
-
+const path = require('path');
 var navEnum = {
 	FIRST:0,
 	PREV:1,
@@ -12,8 +12,8 @@ function pickABool(decider, bool1, bool2){
 	}
 function checkData(nav ,rootDir, chDirName, pgDirName, payload){
 
-		var myPath = rootDir+'/'+chDirName+'/'+pgDirName;
-		// var myPath = path.join(rootDir, chDirName, pgDirName);
+		// var myPath = rootDir+'/'+chDirName+'/'+pgDirName;
+		var myPath = path.join(rootDir, chDirName, pgDirName);
 		if(!fs.existsSync(myPath)){
 			console.log("path "+ myPath + " does not exist.");
 			return false;
@@ -62,7 +62,24 @@ function sortPage(a,b){
 }
 
 module.exports = {
-	
+	newPayload:function(){
+		return {
+		currentCh: null,
+		currentPg: null,
+		is4koma: false,
+		title: null,
+		img: null,
+		alt: null,
+		date: null,
+		note: null,
+		last: null,
+		next: null,
+		prev: null,
+		first: null,
+		menu: [],
+		
+		}
+	},
 
 	fileListFilter:function (path, pattern){
 		if(!fs.existsSync(path)){
@@ -83,8 +100,8 @@ module.exports = {
 		var temp = [null, null, null, null];
 
 		//get data from page folders
-		var myPath = rootDir+'/'+chDirName+'/'+pgDirName
-		// var myPath = path.join(rootDir, chDirName, pgDirName);
+		// var myPath = rootDir+'/'+chDirName+'/'+pgDirName
+		var myPath = path.join(rootDir, chDirName, pgDirName);
 		if(!fs.existsSync(myPath)){
 			console.log("File path does not exist.");
 			return false
@@ -219,7 +236,8 @@ module.exports = {
 			start = directFlag ? 0 : chDir.length-1;
 		}
 		//get list of pages
-		var pgDir = this.fileListFilter(rootDir+'/'+chDir[start], /0*\d+/ );
+		// var pgDir = this.fileListFilter(rootDir+'/'+chDir[start], /0*\d+/ );
+		var pgDir = this.fileListFilter(path.join(rootDir,chDir[start]), /0*\d+/ );
 		pgDir.sort(sortPage);
 		//determine star value of inner loop
 		if(haveCurrent){
@@ -236,7 +254,8 @@ module.exports = {
 			//initalizes list for inner loop set list to current page and link if loop is decrimenting and we have a current page
 			var list = (i == start && haveCurrent && !directFlag) ? [{page:payload.currentPg.toString(), link:"/"+payload.currentCh+"/"+payload.currentPg}]:[];
 			//get list of pages to loop through
-			pgDir = this.fileListFilter(rootDir+'/'+chDir[i], /0*\d+/ );
+			// pgDir = this.fileListFilter(rootDir+'/'+chDir[i], /0*\d+/ );
+			pgDir = this.fileListFilter(path.join(rootDir,chDir[i]), /0*\d+/ );
 			pgDir.sort(sortPage);
 			for(let j = (i == start) ? start2 : (directFlag ? 0 : pgDir.length-1); pickABool(directFlag, (j < pgDir.length), (j >= 0 )); j+=iod){
 				//if we don't have data on current page lets det that data
