@@ -1,7 +1,8 @@
 const fastify = require('fastify')({logger:true});
-const fs = require('fs')
+const fs = require('fs');
+const path = require('path');
 
-var PORT = process.env.PORT || 8080
+var PORT = process.env.PORT || 3000 || 8080;
 var navEnum = {
 	FIRST:0,
 	PREV:1,
@@ -246,7 +247,7 @@ function findContent(rootDir, directFlag, payload, haveCurrent=false){
 		//load Chapter and page list into object
 		if(directFlag){
 			
-			out.push({title: chDir[i], pages: list});
+			out.push({title: chDir[i].replace(/-/g, " "), pages: list});
 		}
 		else{
 			
@@ -256,11 +257,16 @@ function findContent(rootDir, directFlag, payload, haveCurrent=false){
 
 	return out;
 }
-
+/**/
 fastify.register(require('point-of-view'), {
 	engine:{
 		handlebars: require('handlebars')
 	}
+});
+
+fastify.register(require('fastify-static'), {
+  root: path.join(__dirname, 'public'),
+  prefix: '/public/', // optional: default '/'
 })
 
 fastify.get('/', (req, res) => {
@@ -272,26 +278,26 @@ fastify.get('/', (req, res) => {
 	img: null,
 	alt: null,
 	date: null,
-	notes: null,
+	note: null,
 	last: null,
 	next: null,
 	prev: null,
 	first: null,
 	menu: [],
-	errmsg: null
+	
 	}
 	//root does not exist send error
 	if(!fs.existsSync('./comics')){
 		//error 500
-		payload.errmsg = "500 error: Whoops looks like we messed up back here. Either the author didn't upload anything yet or something went horribly wrong. Either way lets us know and we'll try to fix it. Untill then check back later."
-		return res.send(payload);
+		//payload.errmsg = "500 error: Whoops looks like we messed up back here. Either the author didn't upload anything yet or something went horribly wrong. Either way lets us know and we'll try to fix it. Untill then check back later."
+		return res.code(500).send({message: "Misplaced Content on the server. Contact Author and try again later"});
 	}
 	//get list of chapters
 	var chDir	= fileListFilter('./comics', /0*\d(-\w+)+/);
 	//if list is 0 send error
 	if(!chDir.length){
-		payload.errmsg = "500 error: Whoops looks like we messed up back here. Either the author didn't upload anything yet or something went horribly wrong. Either way lets us know and we'll try to fix it. Untill then check back later."	
-		return res.send(payload);
+		//payload.errmsg = "500 error: Whoops looks like we messed up back here. Either the author didn't upload anything yet or something went horribly wrong. Either way lets us know and we'll try to fix it. Untill then check back later."	
+		return res.code(500).send({message: "No chapters available on the server. Contact Author and try again later."});
 	}
 	
 	//collect data
@@ -299,8 +305,9 @@ fastify.get('/', (req, res) => {
 
 	//if we could not find an image return error
 	if(!payload.img){
-		payload.errmsg = "500 error: Whoops looks like we messed up back here. Either the author didn't upload anything yet or something went horribly wrong. Either way lets us know and we'll try to fix it. Untill then check back later."	
-		return res.send(payload);
+		//payload.errmsg = "500 error: Whoops looks like we messed up back here. Either the author didn't upload anything yet or something went horribly wrong. Either way lets us know and we'll try to fix it. Untill then check back later."	
+		return res.code(500).send({message: "Content is missing on the server. Contact Author and try again later."});
+		//return res.send(payload);
 	}
 	
 	return res.view('./public/index.html', payload);
@@ -316,13 +323,13 @@ fastify.get('/:ch/:pg', (req, res) => {
 	img: null,
 	alt: null,
 	date: null,
-	notes: null,
+	note: null,
 	last: null,
 	next: null,
 	prev: null,
 	first: null,
 	menu: [],
-	errmsg: null
+	
 	}
 	
 	var chExp = new RegExp('0*'+(req.params.ch)+'(-\\w+)+');
@@ -334,24 +341,27 @@ fastify.get('/:ch/:pg', (req, res) => {
 	//make sure root exists otherwise send error
 	if(!fs.existsSync('./comics')){
 		//error 500
-		payload.errmsg = "500 error: Whoops looks like we messed up back here. Either the author didn't upload anything yet or something went horribly wrong. Either way lets us know and we'll try to fix it. Untill then check back later."
-		return res.send(payload);
+		//payload.errmsg = "500 error: Whoops looks like we messed up back here. Either the author didn't upload anything yet or something went horribly wrong. Either way lets us know and we'll try to fix it. Untill then check back later."
+		//return res.send(payload);
+		return res.code(500).send({message: "Misplaced Content on the server. Contact Author and try again later"});
 	}
 	//get list of chapters
 	chDir = fileListFilter('./comics',  chExp); //1 chapter
 	
 	//if chapter file not found return error 400
 	if(!chDir.length){
-		payload.errmsg = "400 error: Bad request."
-		return res.send(payload);
+		//payload.errmsg = "400 error: Bad request."
+		//return res.send(payload);
+		return res.code(400).send({message: "Bad Request. Check URL for any misspellings."});
 	}
 	//get list of pages
 	pgDir = fileListFilter('./comics/'+chDir[0], pgExp);
 
 	//if page file not found return error 400
 	if(!pgDir.length){
-		payload.errmsg = "400 error: Bad request."
-		return res.send(payload);
+		//payload.errmsg = "400 error: Bad request."
+		//return res.send(payload);
+		return res.code(400).send({message: "Bad Request. Check URL for any misspellings."});
 	}
 	//get data
 	gotCurrent = getData('./comics', chDir[0], pgDir[0], payload);
@@ -359,10 +369,12 @@ fastify.get('/:ch/:pg', (req, res) => {
 	//if no image found return error
 	if(!gotCurrent){
 		//error 500
-		payload.errmsg = "500 error: Whoops looks like we messed up back here. Either the author didn't upload anything yet or something went horribly wrong. Either way lets us know and we'll try to fix it. Untill then check back later."
-		return res.send(payload);
+		//payload.errmsg = "500 error: Whoops looks like we messed up back here. Either the author didn't upload anything yet or something went horribly wrong. Either way lets us know and we'll try to fix it. Untill then check back later."
+		//return res.send(payload);
+		return res.code(500).send({message: "Content is missing on the server. Contact Author and try again later."});
 	}
 	//navigation and menu
+
 	var upperPromise = new Promise((resolve, reject) => {
 		
 		var out = findContent('./comics', true, payload, gotCurrent);
@@ -396,14 +408,19 @@ fastify.get('/:ch/:pg', (req, res) => {
 		//combine menu lists
 		payload.menu = lower.concat(upper);
 		
+		// return res.send(payload);
+		return res.view('./public/index.html', payload);
 	}).catch((values)=>{
 		//report error when some goes wrong
 		console.log("error?", values);
-		payload.errmsg = "500 error: Whoops looks like we messed up back here. Either the author didn't upload anything yet or something went horribly wrong. Either way lets us know and we'll try to fix it. Untill then check back later."	
-	}).finally(() =>{
-		
-		return res.view('./public/index.html', payload);
+		//payload.errmsg = "Promises were not kept. Contact Author and try again later."
+		return res.code(500).send({message: values});	
 	})	
+})
+
+// Declare a route
+fastify.get('/about', (request, reply) => {
+  reply.sendFile('about.html')
 })
 
 fastify.listen(PORT, (err, address) => {

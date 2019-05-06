@@ -18,79 +18,102 @@
       body{
       background-color: lightblue;
       }
+      
+      @media(max-width: 320px){
+      /*#dropdownMenuButton{ font-size: 8px!important;}*/
+      body{background-color: yellow;}
+        #dropdownMenuButton{
+          font-size: 0.69em!important;
+
+        }
+      }
     </style>
   </head>
 
   <body>
     <div class="container-fluid">
 
-    <!-- Banner -->
-    <img class="mx-auto d-block img-fluid" src="https://via.placeholder.com/728x90.png?text=Star+Warrior+Legends" />
+      <!-- Banner -->
+      <!--<img class="mx-auto d-block img-fluid" src="https://via.placeholder.com/728x90.png?text=Star+Warrior+Legends" />-->
 
-    <!-- Links -->
-    <ul class="nav justify-content-center">
-      <li class="nav-item">
-        <a class="nav-link" href="/">Home</a>
-      </li> 
-      <li class="nav-item">
-        <a class="nav-link" href="#">About</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="/">Most Recent</a>
-      </li>
-    </ul>
+      <img class="mx-auto d-block img-fluid" src="../public/Bannerdraft.png" />
+      <!-- Links -->
+      <ul class="nav justify-content-center">
+        <li class="nav-item">
+          <a class="nav-link" href="{{first}}">First Page</a>
+        </li> 
 
-    <!-- Comic Page -->
-    <div class="container">
-      <!-- Date of Posting -->
-      <h6>{{date}}</h6>
-      <!-- Chapter Name and page number-->
-      <h4>Chapter {{currentCh}}: {{title}} - Page {{currentPg}}</h4>
-      <!-- Comic image -->
+        <li class="nav-item">
+          <a class="nav-link" href="/">Recent Page</a>
+        </li>
 
+        <li class="nav-item">
+          <a class="nav-link" href="/about">About</a>
+        </li>
+      </ul>
 
-      <img class="mx-auto d-block img-fluid" width="4500" height="7000" src="https://via.placeholder.com/2250x3500.png?text=Star+Warrior+Legends+Comic+Goes+Here" />
-    </div>
-    <!-- Comic Navigation --> 
+      <!-- Comic Page -->
+      <div class="container">
+        <!-- Date of Posting -->
+        <h6>{{date}}</h6>
+        <!-- Chapter Name and page number-->
+        <h4>Chapter {{currentCh}}: {{title}} - Page {{currentPg}}</h4>
+        <!-- Comic image -->
+        <img class="mx-auto d-block img-fluid" width="66%" src="https://via.placeholder.com/2250x3500.png?text=Star+Warrior+Legends+Comic+Goes+Here" />
+      </div>
+      <!-- Comic Navigation --> 
 
-    <ul class="d-flex nav justify-content-center mb-5">
-      <li class="nav-item">
-        <a class="nav-link px-1 px-sm-2 px-md-3 px-lg-5" href="{{first}}" role="button">First</a>
-      </li>
+      <ul class="d-flex nav justify-content-center my-3">
+        <li class="nav-item">
+          <a class="nav-link px-1 px-sm-2 px-md-3 px-lg-5" href="{{first}}" role="button">First</a>
+        </li>
 
-      <li class="nav-item">
-        <a class="nav-link px-1 px-sm-2 px-md-3 px-lg-5 " href="{{prev}}" role="button">Prev</a>
-      </li>
-      <li class="nav-item">
-        <div class="dropdown">
-          <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            Chapter {{currentCh}} Page {{currentPg}}
-          </button>
-          <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-            {{#each menu}}
-              {{#with this}}
-                <h6 class="dropdown-header">{{title}}</h6>
-                {{#each pages}}
-                  <a class="dropdown-item" href="{{link}}">Page {{page}}</a>
-                {{/each}}
-              {{/with}}
-            {{/each}}
+        <li class="nav-item">
+          <a class="nav-link px-1 px-sm-2 px-md-3 px-lg-5 " href="{{prev}}" role="button">Prev</a>
+        </li>
+        <!-- Drop down Menu -->
+        <li class="nav-item">
+          <div class="dropdown">
+            <button class="btn btn-secondary dropdown-toggle mt-1" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              Chapter {{currentCh}} Page {{currentPg}}
+            </button>
+            <div class="dropdown-menu mx-auto" aria-labelledby="dropdownMenuButton">
+              {{#each menu}}
+                {{#with this}}
+                  <h6 class="dropdown-header">{{title}}</h6>
+                  {{#each pages}}
+                    <a class="dropdown-item" href="{{link}}">Page {{page}}</a>
+                  {{/each}}
+                {{/with}}
+              {{/each}}
+            </div>
+          </div>
+        </li>
+        <!-- End of Menu -->
+        <li class="nav-item ">
+          <a class="nav-link px-1 px-sm-2 px-md-3 px-lg-5" href="{{next}}" role="button">Next</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link px-1 px-sm-2 px-md-3 px-lg-5" href="{{last}}" role="button">Last</a>
+        </li>
+      </ul>	
+      <!-- End of Comic Navigation-->
+      {{#if note}}
+        <div class="card mx-4 mx-sm-2 mx-md-3">
+          <div class="card-header">
+            Authors Notes
+          </div>
+          <div class="card-body">
+            <p>{{note}}</p>
           </div>
         </div>
-      </li>
-      <li class="nav-item ">
-        <a class="nav-link px-1 px-sm-2 px-md-3 px-lg-5" href="{{next}}" role="button">Next</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link px-1 px-sm-2 px-md-3 px-lg-5" href="{{last}}" role="button">Last</a>
-      </li>
-    </ul>	
 
-    <!-- Footer -->
-    <hr />
-    <footer>
-      <p class="text-center">Copyright stuff here</p>
-    </footer>
+      {{/if}}
+      <!-- Footer -->
+      <hr />
+      <footer>
+        <p class="text-center">Copyright stuff here</p>
+      </footer>
     </div>
   </body>
 </html>
