@@ -1,7 +1,7 @@
 const fastify = require('fastify')({logger:true});
 const fs = require('fs');
 const path = require('path');
-const helper = require('./helperFunction.js');
+const helper = require('./public/js/helperFunctions.js');
 
 var PORT = process.env.PORT || 3000 || 8080;
 
