@@ -12,8 +12,7 @@ function pickABool(decider, bool1, bool2){
 	}
 function checkData(nav ,rootDir, chDirName, pgDirName, payload){
 
-		// var myPath = rootDir+'/'+chDirName+'/'+pgDirName;
-		var myPath = path.join(rootDir, chDirName, pgDirName);
+		var myPath = path.resolve(rootDir, chDirName, pgDirName);
 		if(!fs.existsSync(myPath)){
 			console.log("path "+ myPath + " does not exist.");
 			return false;
@@ -81,18 +80,17 @@ module.exports = {
 		}
 	},
 
-	fileListFilter:function (path, pattern){
-		if(!fs.existsSync(path)){
+	fileListFilter:function (filepath, pattern){
+		if(!fs.existsSync(filepath)){
 			console.log("File path does not exist");
 			return null;
 		}
-		var out = fs.readdirSync(path);
+		var out = fs.readdirSync(filepath);
 		//console.log("out ", out);
 		return out.filter((e) => {
 			//console.log("out2", e);
 			return null != e.match(pattern);
 		})
-		return out;
 	},
 
 	getData:function(rootDir, chDirName, pgDirName, payload){
@@ -100,14 +98,12 @@ module.exports = {
 		var temp = [null, null, null, null];
 
 		//get data from page folders
-		// var myPath = rootDir+'/'+chDirName+'/'+pgDirName
-		var myPath = path.join(rootDir, chDirName, pgDirName);
+		var myPath = path.resolve(rootDir, chDirName, pgDirName);
 		if(!fs.existsSync(myPath)){
 			console.log("File path does not exist.");
-			return false
+			return false;
 		}
 		var pageData = fs.readdirSync(myPath);
-
 
 		pageData.forEach((data) => {
 			//find png, jpg, or bmp image
@@ -147,7 +143,7 @@ module.exports = {
 		// there is user defined alternate text
 		if(temp[1]){
 			//load data from text file to payload
-			payload.alt = fs.readFileSync(myPath+'/alt.txt','utf8');
+			payload.alt = fs.readFileSync(path.resolve(myPath, 'alt.txt'),'utf8');
 		}
 		else{
 			//generate default alternate text
@@ -156,18 +152,18 @@ module.exports = {
 
 		//is there an authors note/news
 		if(temp[2]){
-			payload.note = fs.readFileSync(myPath+'/note.txt','utf8');
+			payload.note = fs.readFileSync(path.resolve(myPath,'note.txt'),'utf8');
 		}
 
 		//is there a user defined date
 		if(temp[3]){
-			payload.date = fs.readFileSync(myPath+'/date.txt','utf8');
+			payload.date = fs.readFileSync(path.resolve(myPath,'date.txt'),'utf8');
 		}
 		else{
 			//Generate default Date based on file creation date
 			var months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 			//retreieves file creation time
-			var d = new Date(fs.statSync(myPath+'/'+temp[0]).ctimeMs);
+			var d = new Date(fs.statSync(path.resolve(myPath,temp[0])).ctimeMs);
 			
 			//ordinal number enders
 			var end;
@@ -196,8 +192,6 @@ module.exports = {
 		payload.currentPg = parseInt(pgDirName);
 		return true
 	},
-
-	
 
 	findContent:function(rootDir, directFlag, payload, haveCurrent=false){
 		if(!fs.existsSync(rootDir)){
@@ -236,8 +230,7 @@ module.exports = {
 			start = directFlag ? 0 : chDir.length-1;
 		}
 		//get list of pages
-		// var pgDir = this.fileListFilter(rootDir+'/'+chDir[start], /0*\d+/ );
-		var pgDir = this.fileListFilter(path.join(rootDir,chDir[start]), /0*\d+/ );
+		var pgDir = this.fileListFilter(path.resolve(rootDir,chDir[start]), /0*\d+/ );
 		pgDir.sort(sortPage);
 		//determine star value of inner loop
 		if(haveCurrent){
@@ -252,10 +245,9 @@ module.exports = {
 
 		for(let i = start ; pickABool(directFlag, (i < chDir.length), (i >= 0)); i+=iod){
 			//initalizes list for inner loop set list to current page and link if loop is decrimenting and we have a current page
-			var list = (i == start && haveCurrent && !directFlag) ? [{page:payload.currentPg.toString(), link:"/"+payload.currentCh+"/"+payload.currentPg}]:[];
+			var list = (i == start && haveCurrent && !directFlag) ? [{page:parseInt(payload.currentPg), link:"/"+parseInt(payload.currentCh)+"/"+parseInt(payload.currentPg)}]:[];
 			//get list of pages to loop through
-			// pgDir = this.fileListFilter(rootDir+'/'+chDir[i], /0*\d+/ );
-			pgDir = this.fileListFilter(path.join(rootDir,chDir[i]), /0*\d+/ );
+			pgDir = this.fileListFilter(path.resolve(rootDir,chDir[i]), /0*\d+/ );
 			pgDir.sort(sortPage);
 			for(let j = (i == start) ? start2 : (directFlag ? 0 : pgDir.length-1); pickABool(directFlag, (j < pgDir.length), (j >= 0 )); j+=iod){
 				//if we don't have data on current page lets det that data
