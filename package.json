@@ -4,7 +4,8 @@
   "description": "A website created to host a comic series",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
   },
   "keywords": [
     "SWL"
@@ -16,5 +17,14 @@
     "fastify-static": "^2.3.4",
     "handlebars": "^4.1.2",
     "point-of-view": "^3.1.1"
-  }
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nikea1/webcomic-website.git"
+  },
+  "bugs": {
+    "url": "https://github.com/nikea1/webcomic-website/issues"
+  },
+  "homepage": "https://github.com/nikea1/webcomic-website#readme"
 }

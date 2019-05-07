@@ -16,16 +16,18 @@ fastify.register(require('fastify-static'), {
   prefix: '/public/', // optional: default '/'
 })
 
+var contentRoot = path.resolve('comics');
+
 fastify.get('/', (req, res) => {
 
 	var payload = helper.newPayload();
 	//root does not exist send error
-	if(!fs.existsSync(path.resolve('comics'))){
+	if(!fs.existsSync(contentRoot)){
 		//error 500
 		return res.code(500).send({message: "Misplaced Content on the server. Contact Author and try again later"});
 	}
 	//get list of chapters
-	var chDir = helper.fileListFilter(path.resolve('comics'), /0*\d(-\w+)+/)
+	var chDir = helper.fileListFilter(contentRoot, /0*\d(-\w+)+/)
 	
 	//if list is 0 send error
 	if(!chDir.length){
@@ -33,7 +35,7 @@ fastify.get('/', (req, res) => {
 	}
 	
 	//collect data return a menu list
-	payload.menu = helper.findContent(path.resolve('comics'), false, payload);;
+	payload.menu = helper.findContent(contentRoot, false, payload);;
 
 	//if we could not find an image return error
 	if(!payload.img){
@@ -53,25 +55,25 @@ fastify.get('/:ch/:pg', (req, res) => {
 	var gotCurrent = false;
 
 	//make sure root exists otherwise send error
-	if(!fs.existsSync('./comics')){
+	if(!fs.existsSync(contentRoot)){
 		//error 500
 		return res.code(500).send({message: "Misplaced Content on the server. Contact Author and try again later"});
 	}
 	//get list of chapters
-	chDir = helper.fileListFilter(path.resolve('comics'),  chExp); //1 chapter
+	chDir = helper.fileListFilter(contentRoot,  chExp); //1 chapter
 	//if chapter file not found return error 400
 	if(!chDir.length){
 		return res.code(400).send({message: "Bad Request. Check URL for any misspellings."});
 	}
 	//get list of pages
-	pgDir = helper.fileListFilter(path.resolve('comics', chDir[0]), pgExp);
+	pgDir = helper.fileListFilter(path.resolve(contentRoot, chDir[0]), pgExp);
 
 	//if page file not found return error 400
 	if(!pgDir.length){
 		return res.code(400).send({message: "Bad Request. Check URL for any misspellings."});
 	}
 	//get data
-	gotCurrent = helper.getData(path.resolve('comics'), chDir[0], pgDir[0], payload);
+	gotCurrent = helper.getData(contentRoot, chDir[0], pgDir[0], payload);
 
 	//if no image found return error
 	if(!gotCurrent){
@@ -82,7 +84,7 @@ fastify.get('/:ch/:pg', (req, res) => {
 
 	var upperPromise = new Promise((resolve, reject) => {
 		
-		var out = helper.findContent(path.resolve('comics'), true, payload, gotCurrent);
+		var out = helper.findContent(contentRoot, true, payload, gotCurrent);
 		if(!out){
 			reject("./comics Directory Does not exist.");
 		}
@@ -90,7 +92,7 @@ fastify.get('/:ch/:pg', (req, res) => {
 	})
 	
 	var lowerPromise = new Promise((resolve, reject) => {
-		var out =  helper.findContent(path.resolve('comics'), false, payload, gotCurrent);
+		var out =  helper.findContent(contentRoot, false, payload, gotCurrent);
 		if(!out){
 			reject("./comics Directory Does not exist.");
 		}
