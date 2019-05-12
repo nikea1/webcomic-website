@@ -11,16 +11,22 @@ function pickABool(decider, bool1, bool2){
 		return (decider) ? bool1 : bool2;
 	}
 function checkData(nav ,rootDir, chDirName, pgDirName, payload){
-
-		var myPath = path.resolve(rootDir, chDirName, pgDirName);
+		console.log('In check data', rootDir, chDirName, pgDirName);
+		// console.log("Where am I again", __dirname)
+		var myPath = path.join(rootDir, chDirName, pgDirName);
+		// var myPath = './public/comics/1-Hello-World/01'
+		// console.log("mypath", path.normalize(myPath));
+		// console.log('Resolve', path.resolve('./public/comics/1-Hello-World/01'))
 		if(!fs.existsSync(myPath)){
 			console.log("path "+ myPath + " does not exist.");
 			return false;
 		}
+		//console.log("SUCCESS!!!")
 		var flag = false;
-		var link = '/'+parseInt(chDirName.slice(0, chDirName.indexOf("-")))+"/"+pgDirName;
+		var link = '/'+parseInt(chDirName.slice(0, chDirName.indexOf("-")))+"/"+parseInt(pgDirName);
+		console.log('link', link);
 		var pageData = fs.readdirSync(myPath);
-		
+		console.log('pageData', pageData)
 		//chacks if page has an image
 		pageData.forEach((data) => {
 			if(data.match(/.+\.(png|bmp|jpg)/)){
@@ -45,6 +51,7 @@ function checkData(nav ,rootDir, chDirName, pgDirName, payload){
 				}
 			}
 		})
+		console.log("Final payload in checkData", payload);
 		return flag;
 	}
 
@@ -82,7 +89,7 @@ module.exports = {
 
 	fileListFilter:function (filepath, pattern){
 		if(!fs.existsSync(filepath)){
-			console.log("File path does not exist");
+			console.log("File Filter: File path does not exist");
 			return null;
 		}
 		var out = fs.readdirSync(filepath);
@@ -98,11 +105,13 @@ module.exports = {
 		var temp = [null, null, null, null];
 
 		//get data from page folders
-		var myPath = path.resolve(rootDir, chDirName, pgDirName);
+		var myPath = path.join(rootDir, chDirName, pgDirName);
+		//console.log(myPath);
 		if(!fs.existsSync(myPath)){
-			console.log("File path does not exist.");
+			console.log("Get Data: File path does not exist.");
 			return false;
 		}
+		//console.log("SUCCESS!!!!")
 		var pageData = fs.readdirSync(myPath);
 
 		pageData.forEach((data) => {
@@ -194,11 +203,13 @@ module.exports = {
 	},
 
 	findContent:function(rootDir, directFlag, payload, haveCurrent=false){
+		//console.log("Find Content function", "../../"+rootDir);
+		//console.log('find content in root',rootDir);
 		if(!fs.existsSync(rootDir)){
-			console.log("File path does not exist");
+			console.log("Find Content: File path does not exist");
 			return null;
 		}
-
+		//console.log("SUCCESS")
 		var chDir = this.fileListFilter(rootDir, /0*\d+(-\w+)+/g); //list of chapters
 		var iod = (directFlag ? 1 : -1); //increment or decrement
 		var nav1;
@@ -230,7 +241,7 @@ module.exports = {
 			start = directFlag ? 0 : chDir.length-1;
 		}
 		//get list of pages
-		var pgDir = this.fileListFilter(path.resolve(rootDir,chDir[start]), /0*\d+/ );
+		var pgDir = this.fileListFilter(path.join(rootDir,chDir[start]), /0*\d+/ );
 		pgDir.sort(sortPage);
 		//determine star value of inner loop
 		if(haveCurrent){
@@ -247,20 +258,20 @@ module.exports = {
 			//initalizes list for inner loop set list to current page and link if loop is decrimenting and we have a current page
 			var list = (i == start && haveCurrent && !directFlag) ? [{page:parseInt(payload.currentPg), link:"/"+parseInt(payload.currentCh)+"/"+parseInt(payload.currentPg)}]:[];
 			//get list of pages to loop through
-			pgDir = this.fileListFilter(path.resolve(rootDir,chDir[i]), /0*\d+/ );
+			pgDir = this.fileListFilter(path.join(rootDir,chDir[i]), /0*\d+/ );
 			pgDir.sort(sortPage);
 			for(let j = (i == start) ? start2 : (directFlag ? 0 : pgDir.length-1); pickABool(directFlag, (j < pgDir.length), (j >= 0 )); j+=iod){
 				//if we don't have data on current page lets det that data
 				if(!haveCurrent){
-					haveCurrent = this.getData('./comics', chDir[i], pgDir[j], payload);
+					haveCurrent = this.getData(rootDir, chDir[i], pgDir[j], payload);
 				}
 				//if we already have data on current page and we don't have data on adjacent links lets check if data is available
 				//and mark link if it is available
 				else if(!gotAdj){
-					gotAdj = checkData(nav1,'./comics', chDir[i], pgDir[j], payload);
+					gotAdj = checkData(nav1,rootDir, chDir[i], pgDir[j], payload);
 				}
 				//seaches for ending links
-				checkData(nav2, './comics', chDir[i], pgDir[j], payload);
+				checkData(nav2, rootDir, chDir[i], pgDir[j], payload);
 				
 				//load page data into list  
 				if(directFlag){

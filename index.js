@@ -19,11 +19,11 @@ fastify.register(require('fastify-static'), {
 var contentRoot = path.join('public','comics');
 
 
-
 fastify.get('/', (req, res) => {
 
 	var payload = helper.newPayload();
 	//root does not exist send error
+
 	if(!fs.existsSync(contentRoot)){
 		//error 500
 		return res.code(500).send({message: "Misplaced Content on the server. Contact Author and try again later"});
