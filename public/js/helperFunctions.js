@@ -127,7 +127,7 @@ module.exports = {
 		}
 		
 		//load image into payload				
-		payload.img = temp[0];
+		payload.img = path.join('..',rootDir, chDirName, pgDirName, temp[0]);
 		
 		//check if image is 4koma
 		if(temp[0].match(/4koma(-\w+)+/)){
