@@ -84,7 +84,7 @@ fastify.get('/:ch/:pg', (req, res) => {
 	}
 	//navigation and menu
 
-	var upperPromise = new Promise((resolve, reject) => {
+	var fetchUpperMenu = new Promise((resolve, reject) => {
 		
 		var out = helper.findContent(contentRoot, true, payload, gotCurrent);
 		if(!out){
@@ -93,15 +93,15 @@ fastify.get('/:ch/:pg', (req, res) => {
 		resolve(out);
 	})
 	
-	var lowerPromise = new Promise((resolve, reject) => {
+	var fetchLowerMenu = new Promise((resolve, reject) => {
 		var out =  helper.findContent(contentRoot, false, payload, gotCurrent);
 		if(!out){
 			reject("./comics Directory Does not exist.");
 		}
 		resolve(out);
 	})
-	//divide and conquor
-	Promise.all([lowerPromise, upperPromise ]).then((values) => {
+	//divide and conquer
+	Promise.all([fetchLowerMenu, fetchUpperMenu]).then((values) => {
 		var upper = values[1];
 		var lower = values[0];
 		

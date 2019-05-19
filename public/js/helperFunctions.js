@@ -11,7 +11,9 @@ function pickABool(decider, bool1, bool2){
 		return (decider) ? bool1 : bool2;
 	}
 function checkData(nav ,rootDir, chDirName, pgDirName, payload){
-		console.log('In check data', rootDir, chDirName, pgDirName);
+		if(!nav)
+			return false;
+		// console.log('In check data', rootDir, chDirName, pgDirName);
 		// console.log("Where am I again", __dirname)
 		var myPath = path.join(rootDir, chDirName, pgDirName);
 		// var myPath = './public/comics/1-Hello-World/01'
@@ -29,29 +31,31 @@ function checkData(nav ,rootDir, chDirName, pgDirName, payload){
 		console.log('pageData', pageData)
 		//chacks if page has an image
 		pageData.forEach((data) => {
-			if(data.match(/.+\.(png|bmp|jpg)/)){
+			if(path.extname(data).match(/\.(png|bmp|jpg|jpeg|gif)/)){
+			// if(data.match(/.+\.(png|bmp|jpg|jpeg|gif)/)){
 
 				switch(nav){
 					case navEnum.PREV:
 						payload.prev  = link;
-						flag = true;
+						// flag = true;
 						break;
 					case navEnum.FIRST:
 						payload.first = link;
-						flag = true;
+						// flag = true;
 						break;
 					case navEnum.NEXT:
 						payload.next  = link;
-						flag = true;
+						// flag = true;
 						break;
 					case navEnum.LAST:
 						payload.last  = link;
-						flag = true;
+						// flag = true;
 						break;
 				}
+				flag = true;
 			}
 		})
-		console.log("Final payload in checkData", payload);
+		// console.log("Final payload in checkData", payload);
 		return flag;
 	}
 
@@ -101,6 +105,10 @@ module.exports = {
 	},
 
 	getData:function(rootDir, chDirName, pgDirName, payload){
+		if(!payload){
+			console.log("Get Data: Missing Payload data to send.");
+			return false;
+		}
 		//set temp array
 		var temp = [null, null, null, null];
 
@@ -116,7 +124,8 @@ module.exports = {
 
 		pageData.forEach((data) => {
 			//find png, jpg, or bmp image
-			if(data.match(/.+\.(png|jpg|bmp)/)){
+			if(path.extname(data).match(/\.(png|bmp|jpg|jpeg|gif)/)){
+			// if(data.match(/.+\.(png|jpg|bmp)/)){
 				temp[0] = data;
 			}
 			else if(data.match(/alt\.txt/)){
@@ -143,7 +152,7 @@ module.exports = {
 
 			//mark flag get title from image name
 			payload.is4koma = true;
-			payload.title = temp[0].slice(temp[0].indexOf("-")+1, temp[0].length-4).replace(/-/g, " ");
+			payload.title = temp[0].slice(temp[0].indexOf("-")+1, temp[0].lastIndexOf(".")).replace(/-/g, " ");
 		}else{
 			//get titlt from chapter folder
 			payload.title = chDirName.slice(chDirName.indexOf("-")+1).replace(/-/g, " ");
@@ -199,7 +208,7 @@ module.exports = {
 		//get current chapter and page number
 		payload.currentCh = parseInt(chDirName.slice(0, chDirName.indexOf("-")));
 		payload.currentPg = parseInt(pgDirName);
-		return true
+		return true;
 	},
 
 	findContent:function(rootDir, directFlag, payload, haveCurrent=false){
