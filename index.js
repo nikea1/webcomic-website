@@ -90,6 +90,7 @@ fastify.get('/:ch/:pg', (req, res) => {
 		if(!out){
 			reject("./comics Directory Does not exist.");
 		}
+
 		resolve(out);
 	})
 	

@@ -11,7 +11,7 @@ function pickABool(decider, bool1, bool2){
 		return (decider) ? bool1 : bool2;
 	}
 function checkData(nav ,rootDir, chDirName, pgDirName, payload){
-		if(!nav)
+		if(nav === null | nav === undefined)
 			return false;
 		// console.log('In check data', rootDir, chDirName, pgDirName);
 		// console.log("Where am I again", __dirname)
@@ -33,7 +33,7 @@ function checkData(nav ,rootDir, chDirName, pgDirName, payload){
 		pageData.forEach((data) => {
 			if(path.extname(data).match(/\.(png|bmp|jpg|jpeg|gif)/)){
 			// if(data.match(/.+\.(png|bmp|jpg|jpeg|gif)/)){
-
+				
 				switch(nav){
 					case navEnum.PREV:
 						payload.prev  = link;
