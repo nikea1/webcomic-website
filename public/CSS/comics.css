@@ -1,0 +1,13 @@
+@media(max-width: 320px){
+     
+  body{background-color: yellow;}
+  #dropdownMenuButton{
+    font-size: 0.69em!important;
+  }
+}
+
+.scroll-dropdown-menu{
+  max-height: 200px;
+  overflow-x: hidden;
+  height: auto;
+}

@@ -7,8 +7,17 @@ var PORT = process.env.PORT || 3000 || 8080;
 
 fastify.register(require('point-of-view'), {
 	engine:{
-		handlebars: require('handlebars')
+		handlebars: require('handlebars'),
+	},
+	options:{
+		partials:{
+			comic: 'public/Handlebars/Partials/Pages/comicPage.hbs',
+			about: 'public/Handlebars/Partials/Pages/aboutPage.hbs',
+			footer: 'public/Handlebars/Partials/Includes/footer.hbs',
+			nav: 'public/Handlebars/Partials/Includes/nav.handlebars',
+		}
 	}
+
 });
 
 fastify.register(require('fastify-static'), {
@@ -23,6 +32,7 @@ fastify.get('/', (req, res) => {
 
 	var payload = helper.newPayload();
 	//root does not exist send error
+	payload.isComic = true;
 
 	if(!fs.existsSync(contentRoot)){
 		//error 500
@@ -44,12 +54,14 @@ fastify.get('/', (req, res) => {
 		return res.code(500).send({message: "Content is missing on the server. Contact Author and try again later."});
 	}
 	
-	return res.view(path.join('public', 'index.html'), payload);
+	// return res.view(path.join('public', 'index.html'), payload);
+	return res.view(path.join('public', 'Handlebars','Layouts','base.hbs'), payload);
 })
 
 fastify.get('/:ch/:pg', (req, res) => {
 	
 	var payload = helper.newPayload();
+	payload.isComic = true;
 	var chExp = new RegExp('0*'+(req.params.ch)+'(-\\w+)+');
 	var pgExp = new RegExp('0*'+req.params.pg);
 	var pgDir;
@@ -119,7 +131,8 @@ fastify.get('/:ch/:pg', (req, res) => {
 		payload.menu = lower.concat(upper);
 		
 		// return res.send(payload);
-		return res.view(path.join('public', 'index.html'), payload);
+		//return res.view(path.join('public', 'index.html'), payload);
+		return res.view(path.join('public', 'Handlebars','Layouts','base.hbs'), payload);
 	}).catch((values)=>{
 		//report error when some goes wrong
 		console.log("error?", values);
@@ -130,7 +143,9 @@ fastify.get('/:ch/:pg', (req, res) => {
 
 // Declare a route
 fastify.get('/about', (request, reply) => {
-  reply.sendFile('about.html')
+  //reply.sendFile('about.html')
+
+  return reply.view(path.join('public', 'Handlebars','Layouts','base.hbs'), {isComic: false})
 })
 
 fastify.listen(PORT, (err, address) => {
