@@ -11,10 +11,12 @@ fastify.register(require('point-of-view'), {
 	},
 	options:{
 		partials:{
-			comic: 'public/Handlebars/Partials/Pages/comicPage.hbs',
-			about: 'public/Handlebars/Partials/Pages/aboutPage.hbs',
+			//comic: 'public/Handlebars/Partials/Pages/comicPage.hbs',
+			//about: 'public/Handlebars/Partials/Pages/aboutPage.hbs',
 			footer: 'public/Handlebars/Partials/Includes/footer.hbs',
 			nav: 'public/Handlebars/Partials/Includes/nav.handlebars',
+			Base : 'public/Handlebars/Partials/Layouts/base.hbs',
+
 		}
 	}
 
@@ -55,7 +57,7 @@ fastify.get('/', (req, res) => {
 	}
 	
 	// return res.view(path.join('public', 'index.html'), payload);
-	return res.view(path.join('public', 'Handlebars','Layouts','base.hbs'), payload);
+	return res.view(path.join('public', 'Handlebars','Pages', 'comicPage.hbs'), payload);
 })
 
 fastify.get('/:ch/:pg', (req, res) => {
@@ -132,7 +134,7 @@ fastify.get('/:ch/:pg', (req, res) => {
 		
 		// return res.send(payload);
 		//return res.view(path.join('public', 'index.html'), payload);
-		return res.view(path.join('public', 'Handlebars','Layouts','base.hbs'), payload);
+		return res.view(path.join('public', 'Handlebars','Pages', 'comicPage.hbs'), payload);
 	}).catch((values)=>{
 		//report error when some goes wrong
 		console.log("error?", values);
@@ -145,7 +147,7 @@ fastify.get('/:ch/:pg', (req, res) => {
 fastify.get('/about', (request, reply) => {
   //reply.sendFile('about.html')
 
-  return reply.view(path.join('public', 'Handlebars','Layouts','base.hbs'), {isComic: false})
+  return reply.view(path.join('public', 'Handlebars','Pages', 'aboutPage.hbs'), {isComic: false})
 })
 
 fastify.listen(PORT, (err, address) => {
