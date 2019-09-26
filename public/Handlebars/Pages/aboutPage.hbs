@@ -1,6 +1,9 @@
 
 
-{{#>Base Title="Star Warrior Legends: About"}}
+{{#>Base}}
+	{{#*inline "Title"}}
+		Star Warrior Legends: About
+	{{/inline}}
 
 	{{#*inline "Page"}}
 		<div class="row">
@@ -12,8 +15,9 @@
 			<!-- Col 2 -->
 			<div class="col-12 col-sm-5 col-md-5 col-lg-5 col-xl-5">
 				<h2 class="mt-1">About the Author</h2>
-				<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut dignissim feugiat varius. Vestibulum molestie, risus id faucibus imperdiet, sapien lectus fringilla nisl, in volutpat lacus turpis at lectus. Etiam risus tellus, feugiat non fermentum et, molestie sed lacus. Morbi posuere arcu a enim laoreet lobortis. Cras ut lacus elit. Nunc at posuere mi. Maecenas a faucibus risus, ac vehicula erat. Cras laoreet congue elit. In nulla felis, convallis nec commodo a, venenatis ut magna. Duis sollicitudin quis turpis eu egestas. Nulla mollis porta euismod. Nunc dignissim, urna quis mollis bibendum, leo leo dictum tortor, eget fermentum ex tortor at est. Donec urna orci, pellentesque vel dignissim in, laoreet quis augue. Morbi tincidunt odio ut enim pulvinar ornare. Vestibulum id enim luctus magna auctor ornare in sed purus.
-				</p>
+				{{#>bio}}
+					{{!-- Insert bio about the author --}}
+				{{/bio}}
 			</div>
 			<div class="col"></div>
 		</div>

@@ -11,11 +11,10 @@ fastify.register(require('point-of-view'), {
 	},
 	options:{
 		partials:{
-			//comic: 'public/Handlebars/Partials/Pages/comicPage.hbs',
-			//about: 'public/Handlebars/Partials/Pages/aboutPage.hbs',
-			footer: 'public/Handlebars/Partials/Includes/footer.hbs',
-			nav: 'public/Handlebars/Partials/Includes/nav.handlebars',
-			Base : 'public/Handlebars/Partials/Layouts/base.hbs',
+			footer: 'public/handlebars/Partials/Includes/footer.hbs',
+			nav   : 'public/handlebars/Partials/Includes/nav.hbs',
+			bio : 'public/handlebars/Partials/Includes/bio.hbs',
+			Base  : 'public/handlebars/Partials/Layouts/base.hbs',
 
 		}
 	}
@@ -34,7 +33,7 @@ fastify.get('/', (req, res) => {
 
 	var payload = helper.newPayload();
 	//root does not exist send error
-	payload.isComic = true;
+	
 
 	if(!fs.existsSync(contentRoot)){
 		//error 500
@@ -63,7 +62,7 @@ fastify.get('/', (req, res) => {
 fastify.get('/:ch/:pg', (req, res) => {
 	
 	var payload = helper.newPayload();
-	payload.isComic = true;
+	
 	var chExp = new RegExp('0*'+(req.params.ch)+'(-\\w+)+');
 	var pgExp = new RegExp('0*'+req.params.pg);
 	var pgDir;
@@ -147,7 +146,7 @@ fastify.get('/:ch/:pg', (req, res) => {
 fastify.get('/about', (request, reply) => {
   //reply.sendFile('about.html')
 
-  return reply.view(path.join('public', 'Handlebars','Pages', 'aboutPage.hbs'), {isComic: false})
+  return reply.view(path.join('public', 'Handlebars','Pages', 'aboutPage.hbs'))
 })
 
 fastify.listen(PORT, (err, address) => {

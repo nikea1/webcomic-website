@@ -1,5 +1,13 @@
 {{#>Base }} 
-  
+
+  {{#*inline "Title"}}
+    Star Warrior Legends: Chapter {{currentCh}} Page {{currentPg}}
+  {{/inline}}
+
+  {{#*inline "Head"}}
+    <link rel="stylesheet" href="/public/css/comics.css" />
+  {{/inline}}
+
   {{#*inline "Page"}}
  <!-- Comic Page -->
       <div class="container">
@@ -58,7 +66,6 @@
             <p>{{note}}</p>
           </div>
         </div>
-
       {{/if}}
   {{/inline}}
 {{/Base}}
