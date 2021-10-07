@@ -14,7 +14,7 @@
   "license": "ISC",
   "dependencies": {
     "fastify": "^2.8.0",
-    "fastify-static": "^2.3.4",
+    "fastify-static": "^4.2.4",
     "handlebars": "^4.3.0",
     "point-of-view": "^3.5.0"
   },
