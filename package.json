@@ -15,7 +15,7 @@
   "dependencies": {
     "fastify": "^2.8.0",
     "fastify-static": "^2.3.4",
-    "handlebars": "^4.3.0",
+    "handlebars": "^4.7.4",
     "point-of-view": "^3.5.0"
   },
   "devDependencies": {},
